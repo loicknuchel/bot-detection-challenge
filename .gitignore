@@ -1,0 +1,6 @@
+.bsp
+.idea
+target
+project/target
+src/test/resources/*.log
+!src/test/resources/100.log
