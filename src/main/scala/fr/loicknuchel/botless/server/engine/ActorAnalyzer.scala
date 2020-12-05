@@ -19,8 +19,8 @@ import scala.concurrent.duration.DurationInt
  */
 object ActorAnalyzer {
   // TODO put theses in config file
-  private[engine] val timeResolution = 1.minute // size of time intervals to compute stats
-  private[engine] val timeRetention = 1.hour // how long we keep history
+  private[engine] val timeResolution = 30.minute // size of time intervals to compute stats
+  private[engine] val timeRetention = 12.hour // how long we keep history
 
   // keep internal representation private so Rules only rely on semantic accessors, will help maintenance over large set of rules
   final case class State(private[engine] val timeseries: Map[Interval, Stats] = Map()) {

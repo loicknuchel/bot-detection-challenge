@@ -4,12 +4,11 @@ import cats.data.Validated.Valid
 import fr.loicknuchel.botless.server.domain.FileExtension
 import fr.loicknuchel.botless.server.domain.HttpVerb.{GET, POST}
 import fr.loicknuchel.botless.server.engine.Rule._
-import fr.loicknuchel.botless.testingutils.BaseSpec
-import fr.loicknuchel.botless.testingutils.Fixtures.{ip, log}
+import fr.loicknuchel.botless.testingutils.Fixtures.log
+import fr.loicknuchel.botless.testingutils.{BaseSpec, RandomData}
 
-class RuleSpec extends BaseSpec {
+class RuleSpec extends BaseSpec with RandomData {
   private val state = ActorAnalyzer.State()
-  private val (php, css) = (FileExtension("php"), FileExtension("css"))
 
   describe("Rule") {
     describe("ForbiddenKeywordInUserAgent") {
@@ -58,17 +57,16 @@ class RuleSpec extends BaseSpec {
     }
     describe("DoNotRequestAssets") {
       it("should identify IP not downloading assets as bots") {
-        val rule = DoNotRequestAssets(2, Set("css").map(FileExtension))
-        val (ip1, ip2) = (ip(1, 2, 3, 4), ip(2, 3, 4, 5))
+        val rule = DoNotRequestAssets(2, Set(ext2.value).map(FileExtension))
         List(
-          log(ip = ip1, verb = GET, fileExtension = php) -> None,
-          log(ip = ip1, verb = GET, fileExtension = php) -> None,
-          log(ip = ip1, verb = GET, fileExtension = php) -> Some(BotFound("No asset requested after 2 requests (css)")),
-          log(ip = ip1, verb = GET, fileExtension = php) -> Some(BotFound("No asset requested after 2 requests (css)")),
-          log(ip = ip2, verb = GET, fileExtension = php) -> None,
-          log(ip = ip2, verb = GET, fileExtension = css) -> None,
-          log(ip = ip2, verb = GET, fileExtension = php) -> None,
-          log(ip = ip2, verb = GET, fileExtension = php) -> None
+          log(ip = ip1, verb = GET, fileExtension = ext1) -> None,
+          log(ip = ip1, verb = GET, fileExtension = ext1) -> None,
+          log(ip = ip1, verb = GET, fileExtension = ext1) -> Some(BotFound(s"No asset requested after 2 requests (${ext2.value})")),
+          log(ip = ip1, verb = GET, fileExtension = ext1) -> Some(BotFound(s"No asset requested after 2 requests (${ext2.value})")),
+          log(ip = ip2, verb = GET, fileExtension = ext1) -> None,
+          log(ip = ip2, verb = GET, fileExtension = ext2) -> None,
+          log(ip = ip2, verb = GET, fileExtension = ext1) -> None,
+          log(ip = ip2, verb = GET, fileExtension = ext1) -> None
         ).zipWithIndex.foldLeft(state) { case (s, ((l, r), i)) =>
           val s2 = s.evolve(Valid(l))
           val res = rule.isBot(s2, l)

@@ -43,7 +43,7 @@ class ParserSpec extends BaseSpec {
       }
       it("should parse a log with an invalid http verb") {
         Parser.parse(RawLog("112.175.184.9 - - [" + dateStr + "] \"T /index.php?option=com_jce&task=plugin&plugin=imgmanager&file=imgmanager&version=1576&cid=20 HTTP/1.1\" 200 24571 \"-\" \"BOT/0.1 (BOT for JCE)\" \"-\"")) shouldBe
-          InvalidHttpVerb("T", HttpVerb.all.map(_.toString)).invalidNec
+          InvalidHttpVerb("T", HttpVerb.all.map(_.name)).invalidNec
       }
     }
     it("should parse a date") {

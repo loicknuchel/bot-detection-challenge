@@ -4,7 +4,9 @@ import cats.data.ValidatedNec
 import cats.implicits.catsSyntaxValidatedIdBinCompat0
 import fr.loicknuchel.botless.server.engine.Parser.ParsingError.InvalidHttpVerb
 
-sealed trait HttpVerb extends Product
+sealed trait HttpVerb extends Product with Serializable {
+  def name: String = toString
+}
 
 object HttpVerb {
 
@@ -30,6 +32,6 @@ object HttpVerb {
 
   def fromString(verb: String): ValidatedNec[InvalidHttpVerb, HttpVerb] =
     all
-      .find(_.toString.toLowerCase == verb.toLowerCase)
-      .fold(InvalidHttpVerb(verb, all.map(_.toString)).invalidNec[HttpVerb])(_.validNec)
+      .find(_.name.toLowerCase == verb.toLowerCase)
+      .fold(InvalidHttpVerb(verb, all.map(_.name)).invalidNec[HttpVerb])(_.validNec)
 }

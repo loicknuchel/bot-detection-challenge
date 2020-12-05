@@ -5,6 +5,8 @@ val Http4sVersion = "0.21.11"
 val AkkaVersion = "2.6.10"
 val LogbackVersion = "1.2.3"
 val ScalatestVersion = "3.2.2"
+val ScalatestPlusVersion = "3.2.2.0"
+val RandomDataGeneratorVersion = "2.9"
 
 lazy val root = (project in file("."))
   .settings(
@@ -24,9 +26,11 @@ lazy val root = (project in file("."))
       "com.typesafe.akka" %% "akka-actor-typed" % AkkaVersion,
       "ch.qos.logback" % "logback-classic" % LogbackVersion,
       "org.scalatest" %% "scalatest" % ScalatestVersion % Test,
+      "org.scalatestplus" %% "scalacheck-1-14" % ScalatestPlusVersion % Test,
+      "com.danielasfregola" %% "random-data-generator" % RandomDataGeneratorVersion % Test,
       "com.typesafe.akka" %% "akka-actor-testkit-typed" % AkkaVersion % Test),
     addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.10.3"),
     addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
   )
 
-mainClass in (Compile, run) := Some("fr.loicknuchel.botless.Demo")
+mainClass in(Compile, run) := Some("fr.loicknuchel.botless.Demo")

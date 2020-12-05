@@ -4,9 +4,9 @@ import cats.data.NonEmptyChain
 import cats.data.Validated.Invalid
 import cats.implicits.catsSyntaxValidatedIdBinCompat0
 import fr.loicknuchel.botless.server.engine.Parser.ParsingError.InvalidIp.{InvalidIpScheme, NotANumberIPPart, TooBigIPPart}
-import fr.loicknuchel.botless.testingutils.BaseSpec
+import fr.loicknuchel.botless.testingutils.{BaseSpec, PropertyChecks}
 
-class IPv4Spec extends BaseSpec {
+class IPv4Spec extends BaseSpec with PropertyChecks {
   describe("IPv4") {
     it("should parse an IPv4") {
       IPv4.fromString("1.2.3.4").map(_.value) shouldBe "1.2.3.4".validNec
@@ -22,6 +22,11 @@ class IPv4Spec extends BaseSpec {
       IPv4.fromString("0.0.0.0").toOption.get.value shouldBe "0.0.0.0"
       IPv4.fromString("30.120.160.230").toOption.get.value shouldBe "30.120.160.230"
       IPv4.fromString("255.255.255.255").toOption.get.value shouldBe "255.255.255.255"
+    }
+    it("should have a valid IPv4 generator") {
+      forAll { ip: IPv4 =>
+        IPv4.fromString(ip.value) shouldBe ip.validNec
+      }
     }
   }
 }

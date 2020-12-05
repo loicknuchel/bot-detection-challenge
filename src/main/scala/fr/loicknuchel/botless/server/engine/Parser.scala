@@ -45,7 +45,7 @@ object Parser {
     Try(OffsetDateTime.parse(date, dateFormatter)).fold(_ => InvalidDate(date, dateFormat).invalidNec, _.validNec)
 
   // thanks to by name parameter, the message string is computed only if and when the getMessage is called
-  sealed abstract class ParsingError(msg: => String) extends Product {
+  sealed abstract class ParsingError(msg: => String) extends Product with Serializable {
     def getMessage: String = msg
   }
 

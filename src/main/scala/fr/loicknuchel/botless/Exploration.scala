@@ -52,21 +52,30 @@ object Exploration {
   }
 
   def analyze(logs: List[RawLog]): List[Log] =
-    logs.zipWithIndex.foldLeft(ActorAnalyzer.State() -> List.empty[(Int, RawLog, Option[ParsedLog], Option[Rule.BotFound])]) { case ((s, res), (l, i)) =>
+    logs.zipWithIndex.foldLeft(ActorAnalyzer.State() -> List.empty[Log]) { case ((s, res), (l, i)) =>
       val (p, ns, r) = ActorAnalyzer.compute(Rules.defaults, s, l)
-      (ns, (i, l, p, r) :: res)
-    }._2.reverse.collect { case (i, l, Some(p), r) => Log(i, l, p, r) }
+      (ns, p.map(Log(i, l, _, r)).toList ++ res)
+    }._2.reverse
 
   def formatHistory(ip: IPv4, history: List[Log]): String = {
     val title = s"History of ${ip.value} (${history.length} requests):"
+    val timePad = "".pad(dateSize)
     val lines = history.sortBy(_.parsed.date).take(ipHistoryLength).groupBy(_.parsed.date).toList.sortBy(_._1).flatMap { case (date, list) =>
       val time = format(date)
       val lines = list.map { case Log(_, _, p, r) =>
-        s"${r.fold("[ ]")(_ => "[X]")} ${p.verb.toString.pad(4)} ${p.status.value} ${p.url.resourceType.symbol} ${p.url.value.pad(90)} from ${p.referer.value.pad(50)} with ${p.userAgent.value}${r.fold("")(" (flagged as bot because " + _.reason + ")")}"
+        val bot = r.fold("[ ]")(_ => "[X]")
+        val verb = p.verb.name.pad(4)
+        val status = p.status.value
+        val resourceType = p.url.resourceType.symbol
+        val url = p.url.value.pad(90)
+        val referer = p.referer.value.pad(50)
+        val userAgent = p.userAgent.value
+        val botReason = r.fold("")(" (flagged as bot because " + _.reason + ")")
+        s"$bot $verb $status $resourceType $url from $referer with $userAgent$botReason"
       }
-      s"$time ${lines.head}" :: lines.tail.map(l => s"${"".pad(dateSize)} $l")
+      s"$time ${lines.head}" :: lines.tail.map(l => s"$timePad $l")
     }
-    val footer = if (history.length > ipHistoryLength) s"\n${"".pad(dateSize)} ... truncated history (${history.length - ipHistoryLength} more logs)" else ""
+    val footer = if (history.length > ipHistoryLength) s"\n$timePad ... truncated history (${history.length - ipHistoryLength} more logs)" else ""
     (title :: lines).mkString("\n") + footer
   }
 

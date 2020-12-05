@@ -9,6 +9,8 @@ import scala.util.{Failure, Success, Try}
 
 final case class IPv4(a: Byte, b: Byte, c: Byte, d: Byte) {
   def value: String = s"${a & 0xff}.${b & 0xff}.${c & 0xff}.${d & 0xff}"
+
+  override def toString: String = s"IPv4($value)"
 }
 
 object IPv4 {
